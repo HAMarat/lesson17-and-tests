@@ -12,7 +12,7 @@
 #    получить сущность с соответствующим id
 
 from flask import Flask
-from flask_restx import Api
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 
@@ -50,7 +50,19 @@ with db.session.begin():
     db.session.add_all([n1, n2])
 
 
-# TODO напишите Class Based Views здесь
+@note_ns.route('/')
+class NoteView(Resource):
+    def get(self):
+        notes = db.session.query(Note).all()
+        return notes_schema.dump(notes)
+
+
+@note_ns.route('/<int:nid>')
+class NoteView(Resource):
+    def get(self, nid):
+        note = db.session.query(Note).get(nid)
+        return note_schema.dump(note)
+
 
 # Для проверки работоспособности запустите фаил
 # и сделайте GET-запрос на адреса:

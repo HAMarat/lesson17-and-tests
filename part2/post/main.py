@@ -19,14 +19,16 @@
 #  "author": "Кто ты?"
 # }
 
-from flask import Flask
+from flask import Flask, request
 from pprint import pprint
+from flask_restx import Resource, Api
+from marshmallow import fields, Schema
 
 app = Flask(__name__)
 app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
-api = # TODO допишите код
-note_ns = # TODO допишите код
+api = Api(app)
+note_ns = api.namespace('notes')
 
 notes = [
     {
@@ -41,7 +43,11 @@ notes = [
     }
 ]
 
-# TODO напишите Class Based View
+@note_ns.route('/')
+class NoteView(Resource):
+    def post(self):
+        notes.append(request.json)
+        return '', 201
                                                 
      
                                                 # Не удаляйте этот код, он нужен для

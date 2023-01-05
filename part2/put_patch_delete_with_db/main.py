@@ -31,7 +31,7 @@ app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 db = SQLAlchemy(app)
 
 api = Api(app)
-note_ns = # TODO допишите код
+note_ns = api.namespace('notes')
 
 
 class Note(db.Model):
@@ -60,23 +60,43 @@ with db.session.begin():
     db.session.add_all([n1, n2])
 
 
-# TODO Допишите Class Based View здесь
-# @ 
-# class ...
-#     def put(self, uid):
-#         pass
+@note_ns.route('/<int:uid>')
+class NoteView(Resource):
+    def put(self, uid):
+        note = db.session.query(Note).get(uid)
+        if not db.session.query(Note).get(uid):
+            return '', 404
+        new_note = request.json
+        note.text = new_note.get('text')
+        note.author = new_note.get('author')
+        db.session.add(note)
+        db.session.commit()
+        return '', 204
 
-#     def patch(self, uid):
-#         pass
+    def patch(self, uid):
+        note = db.session.query(Note).get(uid)
+        if not db.session.query(Note).get(uid):
+            return '', 404
+        new_note = request.json
+        note.text = new_note.get('text')
+        note.author = new_note.get('author')
+        db.session.add(note)
+        db.session.commit()
+        return '', 204
 
-#     def delete(self, uid):
-#         pass
+    def delete(self, uid):
+        note = db.session.query(Note).get(uid)
+        if not note:
+            return '', 404
+        db.session.delete(note)
+        db.session.commit()
+        return '', 204
 
 
 # # # # # # # # # # # #
 if __name__ == '__main__':
     client = app.test_client()                          # TODO вы можете раскомментировать   
-    # response = client.put('/notes/1', json=PUT)       # соответсвующе функции и  
+    # response = client.put('/notes/1', json=PUT)       # соответсвующе функции и
     # response = client.patch('/notes/1', json=PATCH)   # воспользоваться ими для самопроверки   
     # response = client.delete('/notes/1', json='')     # аналогично заданию `post_with_db`   
     session = db.session()

@@ -7,9 +7,10 @@
 #
 
 from flask import Flask
-from flask_restx import Api
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -50,7 +51,11 @@ with db.session.begin():
     db.session.add_all([b1, b2])
 
 
-# TODO напишите Class Based View здесь
+@book_ns.route('/')
+class BookView(Resource):
+    def get(self):
+        books = db.session.query(Book).all()
+        return books_schema.dump(books)
 
 
 # для проверки работоспособности запустите фаил

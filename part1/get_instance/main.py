@@ -15,6 +15,7 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow import Schema, fields
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -32,9 +33,11 @@ class Book(db.Model):
     year = db.Column(db.Integer)
 
 
-class BookSchema:
-    # TODO определите здесь схему
-    pass
+class BookSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+    author = fields.Str()
+    year = fields.Int()
 
 
 b1 = Book(id=1, name="Гарри Поттер",            # Данный отрезок кода
@@ -47,8 +50,13 @@ db.create_all()
 with db.session.begin():
     db.session.add_all([b1, b2])
 
-# TODO напишите роут здесь
-# @app.route(...)
+
+@app.route('/books/<int:book_id>')
+def return_book(book_id):
+    book_schema = BookSchema()
+    book = db.session.query(Book).get(book_id)
+    return book_schema.dumps(book)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

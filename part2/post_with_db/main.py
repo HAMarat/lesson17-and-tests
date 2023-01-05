@@ -6,8 +6,8 @@
 #   с помощью POST-запроса по адресу `/notes/` добавить
 #   в базу данных запись о соответствующем объекте
 
-from flask import Flask
-from flask_restx import Api
+from flask import Flask, request
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 from prettytable import prettytable
@@ -48,7 +48,13 @@ with db.session.begin():
     db.session.add_all([n1, n2])
 
 
-# TODO напишите Class Based View здесь
+@note_ns.route('/')
+class NoteView(Resource):
+    def post(self):
+        note = note_schema.dump(request.json)
+        db.session.add(Note(**note))
+        db.session.commit()
+        return '', 201
 
 
 # # # # # # # # # # # #                                    # Не удаляйте этот код, он нужен для
